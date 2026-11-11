@@ -41,6 +41,8 @@ match 'git( +-[Cc] +[^ ]+)* +reset +--hard +(origin/)?(main|master)' && deny "Ha
 
 # --- Destructive or privilege-escalating commands ---
 match '(^|[;&| ])sudo( |$)' && deny "sudo is not allowed."
+# \$HOME below is matched literally in the command text; it must not expand.
+# shellcheck disable=SC2016
 match 'rm +(-[a-z]*r[a-z]*f|-[a-z]*f[a-z]*r|-r +-f|-f +-r)[a-z]* +(/|~|\$HOME|\.\.)( |/|$)' && deny "Recursive delete outside the project is not allowed."
 match '(curl|wget)[^|]*\| *(ba|z|k)?sh' && deny "Piping downloads into a shell is not allowed."
 match '(^|[;&| ])(chmod|chown) +-R +[^ ]*( /|~)' && deny "Recursive permission changes outside the project are not allowed."

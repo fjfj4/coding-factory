@@ -1,3 +1,4 @@
+# Wait 7 days before proposing a new version: freshly published packages can be malicious.
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -5,14 +6,20 @@ updates:
     schedule:
       interval: weekly
     labels: ["dependencies"]
+    cooldown:
+      default-days: 7
   # Uncomment the ecosystem your product uses.
   # - package-ecosystem: npm
   #   directory: /
   #   schedule:
   #     interval: weekly
   #   labels: ["dependencies"]
+  #   cooldown:
+  #     default-days: 7
   # - package-ecosystem: uv
   #   directory: /
   #   schedule:
   #     interval: weekly
   #   labels: ["dependencies"]
+  #   cooldown:
+  #     default-days: 7
