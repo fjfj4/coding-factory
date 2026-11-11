@@ -52,7 +52,7 @@ done
 
 # Every hook script referenced exists and is executable
 while IFS= read -r cmd; do
-  script="${cmd//\$\{CLAUDE_PLUGIN_ROOT\}/$plugin}"
+  script="${cmd//\"/}"; script="${script//\$\{CLAUDE_PLUGIN_ROOT\}/$plugin}"
   [ -x "$script" ] || err "hook script missing or not executable: $cmd"
 done < <(jq -r '.. | objects | select(.type? == "command") | .command' "$plugin/hooks/hooks.json")
 

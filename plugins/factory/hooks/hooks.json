@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard-bash.sh"
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard-bash.sh\""
           }
         ]
       },
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/guard-paths.sh"
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard-paths.sh\""
           }
         ]
       }
