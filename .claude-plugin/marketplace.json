@@ -1,0 +1,16 @@
+{
+  "name": "coding-factory",
+  "owner": {
+    "name": "Coding Factory maintainers"
+  },
+  "metadata": {
+    "description": "A minimal, security-first agent team for building software with Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "factory",
+      "source": "./plugins/factory",
+      "description": "Test engineer, coder, code reviewer and security reviewer agents, with guard hooks and a GitHub Issues workflow."
+    }
+  ]
+}

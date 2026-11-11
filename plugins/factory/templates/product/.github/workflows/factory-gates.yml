@@ -1,0 +1,99 @@
+name: factory-gates
+
+# Deterministic gates for a product repo. Agents cannot edit this file (guard hooks);
+# make it required in branch protection for main.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: factory-gates-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Lint, types, tests, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        if: hashFiles('package.json') != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - name: Install Node dependencies
+        if: hashFiles('package-lock.json') != ''
+        run: npm ci
+      - name: Set up uv (Python)
+        if: hashFiles('pyproject.toml') != ''
+        uses: astral-sh/setup-uv@v6
+      - name: Install Python dependencies
+        if: hashFiles('pyproject.toml') != ''
+        run: uv sync --frozen
+      - name: Run gates
+        run: ./.factory/gates.sh ci
+
+  pr-description:
+    name: PR description is complete
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check PR template sections
+        env:
+          # Passed through env and never interpolated into the script, to avoid injection.
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: ./.factory/check-pr-body.sh
+
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Organisation repos need a free licence key: GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+  sast:
+    name: SAST (Semgrep)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Semgrep scan
+        run: semgrep scan --config p/default --config p/owasp-top-ten --config p/secrets --config p/github-actions --error --metrics=off
+
+  dependencies:
+    name: Dependency and config scan (Trivy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Trivy filesystem scan
+        run: >
+          docker run --rm -v "$PWD:/src:ro" aquasec/trivy:0.58.1
+          fs --scanners vuln,misconfig --severity HIGH,CRITICAL
+          --ignore-unfixed --exit-code 1 --no-progress /src

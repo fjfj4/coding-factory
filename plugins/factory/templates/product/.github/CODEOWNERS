@@ -1,0 +1,6 @@
+# Changes to the gates, the factory config and CI need a human code-owner review.
+# Replace @OWNER with your GitHub username or team, then require code-owner review on main.
+/.github/              @OWNER
+/.factory/gates.sh     @OWNER
+/.factory/check-pr-body.sh @OWNER
+/.claude/              @OWNER

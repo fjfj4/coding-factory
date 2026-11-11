@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels: ["dependencies"]
+  # Uncomment the ecosystem your product uses.
+  # - package-ecosystem: npm
+  #   directory: /
+  #   schedule:
+  #     interval: weekly
+  #   labels: ["dependencies"]
+  # - package-ecosystem: uv
+  #   directory: /
+  #   schedule:
+  #     interval: weekly
+  #   labels: ["dependencies"]

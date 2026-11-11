@@ -1,0 +1,71 @@
+name: gates
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gates-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-and-test:
+    name: Validate plugin, lint shell, run tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate plugin structure
+        run: scripts/validate.sh
+      - name: Lint shell scripts
+        run: shellcheck scripts/*.sh tests/*.sh plugins/factory/hooks/*.sh plugins/factory/scripts/*.sh plugins/factory/templates/product/.factory/*.sh
+      - name: Run tests
+        run: tests/run.sh
+
+  pr-description:
+    name: PR description is complete
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check PR template sections
+        env:
+          # Passed through env, never interpolated into the script, to avoid injection.
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: scripts/check-pr-body.sh
+
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  sast:
+    name: SAST (semgrep)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Semgrep scan
+        run: semgrep scan --config p/default --config p/secrets --config p/github-actions --error --metrics=off

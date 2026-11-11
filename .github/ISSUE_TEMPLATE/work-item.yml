@@ -1,0 +1,34 @@
+name: Work item
+description: A piece of work on the factory itself. The spec lives in Notion; a snapshot goes to work/<issue#>-<slug>/spec.md when the build starts.
+labels: ["stage:spec"]
+body:
+  - type: input
+    id: epic
+    attributes:
+      label: Notion epic or feature
+      description: Link to the epic or feature page in Notion this work belongs to.
+      placeholder: https://www.notion.so/...
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: The problem or outcome in 1–3 sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: criteria
+    attributes:
+      label: Acceptance criteria (draft)
+      description: Given/When/Then. The final version goes in spec.md.
+      placeholder: |
+        - Given ..., when ..., then ...
+  - type: dropdown
+    id: size
+    attributes:
+      label: Does this need an architecture note?
+      description: Yes for new components, interfaces, data model changes, auth, payments, data migration or anything irreversible.
+      options:
+        - "No"
+        - "Yes"
+    validations:
+      required: true
