@@ -41,13 +41,13 @@ match 'git( +-[Cc] +[^ ]+)* +reset +--hard +(origin/)?(main|master)' && deny "Ha
 
 # --- Destructive or privilege-escalating commands ---
 match '(^|[;&| ])sudo( |$)' && deny "sudo is not allowed."
+# \$HOME below is matched literally in the command text; it must not expand.
+# shellcheck disable=SC2016
 match 'rm +(-[a-z]*r[a-z]*f|-[a-z]*f[a-z]*r|-r +-f|-f +-r)[a-z]* +(/|~|\$HOME|\.\.)( |/|$)' && deny "Recursive delete outside the project is not allowed."
 match '(curl|wget)[^|]*\| *(ba|z|k)?sh' && deny "Piping downloads into a shell is not allowed."
 match '(^|[;&| ])(chmod|chown) +-R +[^ ]*( /|~)' && deny "Recursive permission changes outside the project are not allowed."
 
 # --- Secrets ---
-# The $ in the pattern below is a regex anchor, not a variable.
-# shellcheck disable=SC2016
 printf '%s' "$c" | sed -E 's/\.env\.(example|sample|template)//g' | grep -Eqi -- '(^|[ /=<"'"'"'])\.env(\.[a-z0-9_-]+)?($|[ "'"'"';|&>])' && deny "Reading or writing .env files is not allowed. Ask the human for non-secret config."
 match '(\.ssh/|\.aws/|\.gnupg/|\.config/gh/|id_rsa|id_ed25519|\.npmrc|\.netrc|\.pem( |$)|\.key( |$))' && deny "Access to credential files is not allowed."
 match '(^|[;&| ])(printenv|env)( *$| *\|)' && deny "Dumping the environment is not allowed (it can contain secrets)."
