@@ -1,3 +1,4 @@
+# Wait 7 days before proposing a new version: freshly published packages can be malicious.
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -5,3 +6,5 @@ updates:
     schedule:
       interval: weekly
     labels: ["dependencies"]
+    cooldown:
+      default-days: 7
