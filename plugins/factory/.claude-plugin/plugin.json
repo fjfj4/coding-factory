@@ -1,7 +1,18 @@
 {
   "name": "factory",
   "version": "0.1.0",
-  "description": "Minimal coding factory: test engineer and coder working in parallel, code and security reviewers, guard hooks, and a GitHub Issues handoff contract. Humans act as analyst, architect and release.",
-  "license": "MIT",
-  "keywords": ["agents", "code-review", "security", "tdd", "github"]
+  "description": "Minimal coding factory: test engineer and coder working in parallel, read-only code and security reviewers, guard hooks and CI gates. Tasks in GitHub Issues, specs in Notion; you approve specs, architecture and merges.",
+  "author": {
+    "name": "fjfj4",
+    "url": "https://github.com/fjfj4"
+  },
+  "homepage": "https://github.com/fjfj4/coding-factory",
+  "repository": "https://github.com/fjfj4/coding-factory",
+  "keywords": [
+    "agents",
+    "code-review",
+    "security",
+    "tdd",
+    "github"
+  ]
 }

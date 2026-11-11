@@ -106,7 +106,7 @@ plugins/factory/
   scripts/       init-product.sh, setup-labels.sh
   templates/     files /factory:init copies into a product repo
 scripts/         validate.sh, check-pr-body.sh (for this repo's own CI)
-tests/           tests for the hooks and the PR check
+tests/           tests for the hooks, the PR check and /factory:init
 docs/decisions/  decisions about the factory itself
 ```
 
@@ -114,7 +114,7 @@ docs/decisions/  decisions about the factory itself
 
 ```
 scripts/validate.sh   # plugin structure, frontmatter, read-only reviewers
-tests/run.sh          # hook and PR-check tests
+tests/run.sh          # hook, PR-check and init tests
 ```
 
 Both run in CI on every PR. Changes to agents, skills or hooks go through a PR like any other code.
