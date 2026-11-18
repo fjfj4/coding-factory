@@ -118,6 +118,8 @@ check "setup refuses to run twice"    "! run setup demo 2>/dev/null"
 cat > "$stub/issues.json" <<'EOF'
 [{"number":11,"title":"Login","labels":[{"name":"stage:qa"}]},{"number":12,"title":"Idea","labels":[]},{"number":13,"title":"Accounts","labels":[{"name":"stage:qa"},{"name":"type:epic"}]}]
 EOF
+# $out is read inside the eval strings of check, which shellcheck cannot see.
+# shellcheck disable=SC2034
 out="$(run show)"
 check "show lists columns with owners" "grep -q '== QA — Test engineer' <<<\"\$out\""
 check "show places items"              "grep -A2 '== QA' <<<\"\$out\" | grep -q '#11 Login'"
