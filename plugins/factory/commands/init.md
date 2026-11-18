@@ -14,6 +14,7 @@ Set up this repository for the coding factory. Use the `factory-workflow` skill 
 5. Ask the human to replace `@OWNER` in `.github/CODEOWNERS` and to create the labels by running:
    `! bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup-labels.sh"`
 6. Recommend branch protection for `main`: require a pull request, the `factory-gates` checks, and code-owner review. Give the link `https://github.com/<owner>/<repo>/settings/branches`.
-7. Check that `gh auth status` works and that the Notion tools are available. If Notion isn't connected, say that specs will fall back to `work/<issue#>-<slug>/spec.md`.
+7. Offer to create the kanban board, a GitHub Project with a column per stage and an Owner field. The human must first give `gh` the project scope: `! gh auth refresh -s project`. Then run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/board.sh" setup`, relay its four manual steps for the views, and commit `.factory/board.env`. Without a Project, `/factory:status` still shows the board in the terminal.
+8. Check that `gh auth status` works and that the Notion tools are available. If Notion isn't connected, say that specs will fall back to `work/<issue#>-<slug>/spec.md`.
 
 Finish with a short checklist of what's done and what the human still has to do.

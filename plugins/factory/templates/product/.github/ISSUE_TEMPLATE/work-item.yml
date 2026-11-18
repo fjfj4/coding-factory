@@ -1,6 +1,6 @@
 name: Work item
 description: One independently buildable piece of work for the factory. The spec lives in Notion.
-labels: ["stage:spec"]
+labels: ["stage:backlog"]
 body:
   - type: input
     id: spec

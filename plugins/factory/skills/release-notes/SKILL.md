@@ -30,6 +30,6 @@ You prepare; the human publishes. The guard hooks block `gh release` and pushes 
    Write for users, not developers: describe behaviour, not files.
 6. Give the human the exact command to publish, for them to run:
    `gh release create v<version> --target main --title "v<version>" --notes-file .factory/tmp/release/notes.md`
-7. After they confirm it's published, move the released issues from `stage:review` or `stage:done` to `stage:done` and comment the version on each.
+7. After they confirm it's published, run `board.sh sync` (closed issues move to Done) and comment the version on each released issue.
 
 Deployment isn't part of the factory yet. If the product deploys from releases, remind the human to watch the deploy.
