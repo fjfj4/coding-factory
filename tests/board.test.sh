@@ -106,7 +106,7 @@ check "sync never adds approvals"              "! grep -q -- '--add-label approv
 # --- setup ---
 rm "$repo/.factory/board.env"
 reset
-out="$(run setup demo)"
+run setup demo >/dev/null
 check "setup creates the project"     "grep -q 'gh project create --owner demo --title Coding factory' '$log'"
 check "setup links the repo"          "grep -q 'gh project link 7 --owner demo --repo demo/app' '$log'"
 check "setup creates Stage columns"   "grep -q -- '--name Stage --data-type SINGLE_SELECT --single-select-options Backlog,Spec review,Architecture,New,In progress,QA,Review,Ready to merge,Done' '$log'"

@@ -11,7 +11,7 @@
 # Needs: gh (with the "project" scope for setup and board updates: gh auth refresh -s project), jq, git.
 set -euo pipefail
 
-STAGES=(backlog spec-review architecture new in-progress qa review ready-to-merge done)
+STAGES=(backlog spec-review architecture new in-progress qa review ready-to-merge "done")
 NAMES=("Backlog" "Spec review" "Architecture" "New" "In progress" "QA" "Review" "Ready to merge" "Done")
 OWNERS=("Analyst" "Human" "Architect" "Planner" "Coder" "Test engineer" "Code + security reviewer" "Human" "Release")
 OWNER_OPTIONS="Analyst,Architect,Planner,Coder,Test engineer,Code + security reviewer,Human,Release"
@@ -99,7 +99,7 @@ has_label() { grep -qxF -- "$2" <<<"$1"; }
 
 next_stage() { # next_stage <state> <stage> <labels> -> where the item belongs now
   local state="$1" stage="$2" labels="$3"
-  if [ "$state" = "CLOSED" ]; then echo done; return; fi
+  if [ "$state" = "CLOSED" ]; then echo "done"; return; fi
   if [ -z "$stage" ]; then echo backlog; return; fi
   if [ "$stage" = "spec-review" ] && has_label "$labels" "approved:spec"; then
     if has_label "$labels" "needs:architecture"; then echo architecture; else echo new; fi
@@ -142,7 +142,7 @@ cmd_sync() {
       ci="$(sed -n "s/^$child:\([0-9]*\)$/\1/p" <<<"$placed")"
       [ -n "$ci" ] && { [ -z "$min" ] || [ "$ci" -lt "$min" ]; } && min="$ci"
     done <<<"$children"
-    if [ "$state" = "CLOSED" ]; then target=done
+    if [ "$state" = "CLOSED" ]; then target="done"
     elif [ -n "$min" ]; then target="${STAGES[$min]}"
     else target="${stage:-backlog}"; fi
     labels="$(gh issue view "$n" --repo "$repo" --json labels --jq '.labels[].name')"
@@ -172,11 +172,12 @@ cmd_show() {
 # ---- Setup ----
 
 cmd_setup() {
-  local owner="${1:-${repo%%/*}}" title="${2:-Coding factory}" number names url
+  local owner="${1:-${repo%%/*}}" title="${2:-Coding factory}" number names url n
   [ -f "$envfile" ] && die "already set up ($envfile). Delete it to point at a different project."
   number="$(gh project create --owner "$owner" --title "$title" --format json | jq -r .number)"
   gh project link "$number" --owner "$owner" --repo "$repo" >/dev/null
-  names="$(IFS=,; echo "${NAMES[*]}")"
+  names=""
+  for n in "${NAMES[@]}"; do names+="${names:+,}$n"; done
   gh project field-create "$number" --owner "$owner" --name Stage --data-type SINGLE_SELECT --single-select-options "$names" >/dev/null
   gh project field-create "$number" --owner "$owner" --name Owner --data-type SINGLE_SELECT --single-select-options "$OWNER_OPTIONS" >/dev/null
   mkdir -p "$(dirname "$envfile")"
