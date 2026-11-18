@@ -26,4 +26,5 @@ In **one message**, launch `code-reviewer` and `security-reviewer` with the abso
    - **Changes required**: anything else, listing the blocking findings first
 2. Post it: `gh pr comment <pr> --body-file T/review.md`. Never approve the PR, and don't use `gh pr review --approve`.
 3. Label the PR `review:passed` or `review:changes-requested` (remove the other one).
-4. If changes are required, tell the human and offer to run `/factory:fix <pr>`. If it passed, tell the human the PR is ready for them to review and merge on GitHub.
+4. If it passed, move issue N to `ready-to-merge` with `bash "${CLAUDE_PLUGIN_ROOT}/scripts/board.sh" move N ready-to-merge`, and tell the human the PR is ready for them to review and merge on GitHub.
+5. If changes are required, leave it in Review, tell the human, and offer to run `/factory:fix <pr>`.

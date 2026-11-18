@@ -76,11 +76,26 @@ Then create the labels (`bash <plugin>/scripts/setup-labels.sh`, shown by `/fact
 | `/factory:fix <pr>` | Coder | Fixes blocking findings, up to 3 rounds |
 | *you merge* | You | Merging is always yours |
 | `/factory:release` | Release (Claude + you) | Version and release notes; you publish |
-| `/factory:status` | | Board of issues and PRs, and what's waiting for you |
+| `/factory:status` | | The board: every item and epic by column and owner, and what's waiting for you |
+
+## The board
+
+Every work item and epic shows up on a kanban board, with who is responsible for it:
+
+| Backlog | Spec review | Architecture | New | In progress | QA | Review | Ready to merge | Done |
+|---|---|---|---|---|---|---|---|---|
+| Analyst | Human | Architect | Planner | Coder | Test engineer | Code + security reviewer | Human | Release |
+
+- **The board is a GitHub Project** linked to the repo, with a `Stage` column field and an `Owner` field. It updates live as the factory works, needs no hosting, and you can open it on the GitHub mobile app.
+- **The labels are the source of truth.** Commands move items with `scripts/board.sh move`, which swaps the `stage:*` label and updates the Project card in one step. `board.sh sync` repairs any drift, moves approved items to New, moves closed issues to Done, and puts each epic in the column of its least-advanced sub-issue.
+- **Epics** are issues labelled `type:epic`, with work items attached as GitHub sub-issues, so the Project can show their progress.
+- **Set it up once per product repo:** `gh auth refresh -s project`, then `bash <plugin>/scripts/board.sh setup` (also offered by `/factory:init`). It prints four clicks to set up the board view, which GitHub can't do from the command line.
+- **Don't drag cards by hand.** A dragged card doesn't change the label, so the next sync moves it back. Move items through the factory commands, or with `board.sh move` yourself.
+- **No Project?** `/factory:status` shows the same board in the terminal.
 
 ## How the work is handed over
 
-State lives in GitHub labels: `stage:spec → stage:architecture → stage:build → stage:review → stage:done`. When a build starts, the approved Notion spec and architecture note are frozen into `work/<issue#>-<slug>/`. The agents read those snapshots, so they never need Notion access. See the `factory-workflow` skill for the full contract.
+State lives in one `stage:*` label per issue, matching the board columns below. When a build starts, the approved Notion spec and architecture note are frozen into `work/<issue#>-<slug>/`. The agents read those snapshots, so they never need Notion access. See the `factory-workflow` skill for the full contract.
 
 ## Security model
 
@@ -103,10 +118,10 @@ plugins/factory/
   commands/      init, spec, architect, build, review, fix, release, status
   skills/        factory-workflow, writing-specs, architecture-notes, pr-packet, release-notes
   hooks/         guard hooks for Bash and file tools
-  scripts/       init-product.sh, setup-labels.sh
+  scripts/       init-product.sh, setup-labels.sh, board.sh
   templates/     files /factory:init copies into a product repo
 scripts/         validate.sh, check-pr-body.sh (for this repo's own CI)
-tests/           tests for the hooks, the PR check and /factory:init
+tests/           tests for the hooks, the PR check, /factory:init and the board
 docs/decisions/  decisions about the factory itself
 ```
 
@@ -114,7 +129,7 @@ docs/decisions/  decisions about the factory itself
 
 ```
 scripts/validate.sh   # plugin structure, frontmatter, read-only reviewers
-tests/run.sh          # hook, PR-check and init tests
+tests/run.sh          # hook, PR-check, init and board tests
 ```
 
 Both run in CI on every PR. Changes to agents, skills or hooks go through a PR like any other code.

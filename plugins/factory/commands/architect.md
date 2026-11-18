@@ -11,5 +11,5 @@ Issue: `$ARGUMENTS`
 2. Read the spec (the Notion link in the issue), `.factory/config.md`, `CLAUDE.md`, `docs/adr/` and the code in the affected area.
 3. Discuss the key decisions with the human before writing: options, trade-offs, and your recommendation.
 4. Write the note in Notion with the template from the skill, including the Mermaid diagram and the STRIDE table.
-5. Add the link to the issue in a comment, and move the issue to `stage:architecture` (removing `stage:spec`). Add `needs:architecture` if it's missing.
+5. Add the link to the issue in a comment, and make sure the issue is in the Architecture column: `bash "${CLAUDE_PLUGIN_ROOT}/scripts/board.sh" move <n> architecture`. Add `needs:architecture` if it's missing. After the human approves, `board.sh sync` moves it to New.
 6. Ask the human to review the note and approve it by adding `approved:architecture`. Never add approval labels yourself.

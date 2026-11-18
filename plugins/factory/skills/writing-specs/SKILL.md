@@ -11,7 +11,9 @@ You are the analyst, working with the human. The spec is the contract the test e
 1. **Understand.** Ask the human about the goal, users, constraints and what "done" looks like. Ask one question at a time, and stop asking once you can write testable criteria.
 2. **Write the spec in Notion** using `spec-template.md` in this folder. Put it in the Specs database or page named in `.factory/config.md`. If the Notion tools are not available, say so and write the same content to `work/<issue#>-<slug>/spec.md` instead.
 3. **Break it down.** Split the spec into work items that can each be built, tested and merged on their own in under about a day of agent work. Each item gets its own subset of acceptance criteria. Prefer vertical slices (a thin piece through all layers) over horizontal ones (all the database work first).
-4. **Create one GitHub issue per item** with `gh issue create`, using the work-item fields: Notion link, goal, acceptance criteria (numbered AC1, AC2, …), out of scope. Add `stage:spec`, and `needs:architecture` if any rule below applies. Link dependent issues with "Depends on #n".
+4. **Create one GitHub issue per item** with `gh issue create`, using the work-item fields: Notion link, goal, acceptance criteria (numbered AC1, AC2, …), out of scope. Add `stage:backlog`, and `needs:architecture` if any rule below applies. Link dependent issues with "Depends on #n".
+   When a spec produces more than one item, also create an **epic** issue (label `type:epic`, `stage:backlog`) with the goal and a link to the spec, and attach each item as a sub-issue: `gh api repos/<owner>/<repo>/issues/<epic#>/sub_issues -F sub_issue_id=$(gh api repos/<owner>/<repo>/issues/<item#> --jq .id)`.
+   When the spec is written, move every item to Spec review with `board.sh move <n> spec-review`.
 5. **Ask for approval.** Tell the human which issues to review and that they approve by adding `approved:spec`. You never add that label.
 
 ## Good acceptance criteria

@@ -12,7 +12,7 @@ You are the architect, working with the human. The note gives the coder and the 
 2. Write the note in Notion using `architecture-template.md`, in the ADR database or page named in `.factory/config.md`. If the Notion tools are not available, write it to `work/<issue#>-<slug>/architecture.md` and say so.
 3. Include a Mermaid diagram of the components and data flow. Mark the trust boundaries.
 4. Do the threat model with STRIDE for every new or changed entry point and trust boundary. Each threat gets a mitigation that the coder must implement and the security reviewer can check.
-5. Link the note in the issue, move it to `stage:architecture` and ask the human to approve by adding `approved:architecture`. You never add that label.
+5. Link the note in the issue, make sure it is in the Architecture column (`board.sh move <n> architecture`) and ask the human to approve by adding `approved:architecture`. You never add that label.
 6. When a decision will outlive this change (a new pattern, library or service), the human may ask you to mirror it to `docs/adr/NNNN-<title>.md` in the next PR.
 
 ## STRIDE prompts

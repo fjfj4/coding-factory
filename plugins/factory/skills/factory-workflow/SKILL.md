@@ -19,12 +19,24 @@ description: The coding factory's handoff contract - stages, GitHub labels, huma
 | Security reviewer | `security-reviewer` subagent (read-only) | Exploitable vulnerabilities; critical/high block |
 | Release | Main Claude session + human (`/factory:release`) | Release notes and version; the human merges and publishes |
 
-## Stages (one `stage:*` label at a time)
-```
-stage:spec → [stage:architecture] → stage:build → stage:review → stage:done
-```
+## The board: stages and owners (one `stage:*` label at a time)
+| Column | Label | Owner | Moved here by |
+|---|---|---|---|
+| Backlog | `stage:backlog` | Analyst | `/factory:spec`, or `board.sh sync` for any open issue without a stage |
+| Spec review | `stage:spec-review` | Human | `/factory:spec` when the spec is written |
+| Architecture | `stage:architecture` | Architect | `board.sh sync` after `approved:spec` on a `needs:architecture` item |
+| New | `stage:new` | Planner | `board.sh sync` once the needed approvals are there |
+| In progress | `stage:in-progress` | Coder | `/factory:build` and `/factory:fix` |
+| QA | `stage:qa` | Test engineer | `/factory:build` when code and acceptance tests are joined |
+| Review | `stage:review` | Code + security reviewer | `/factory:build` when the PR is open |
+| Ready to merge | `stage:ready-to-merge` | Human | `/factory:review` when both reviewers pass |
+| Done | `stage:done` | Release | `board.sh sync` when the issue is closed (the PR merged) |
+
+- **Always move items with the board script**, never by editing labels by hand: `bash "${CLAUDE_PLUGIN_ROOT}/scripts/board.sh" move <issue#> <stage>`. It swaps the label and updates the GitHub Project board in one step. Add a comment saying what happened and what comes next.
+- `bash "${CLAUDE_PLUGIN_ROOT}/scripts/board.sh" sync` applies approvals and close-outs and refreshes the board. Run it at the start of `/factory:status` and `/factory:build`.
+- Until there is a planner agent, the sync rules act as the planner: an approved item moves to New by itself.
+- **Epics** are issues labelled `type:epic` with the work items attached as GitHub sub-issues. An epic sits in the column of its least-advanced open sub-issue.
 - `needs:architecture` marks larger changes: new components or interfaces, data model changes, auth, payments, personal data, migrations, public APIs, anything irreversible.
-- When you move an item, remove the old `stage:*` label in the same command and add a comment saying what happened and what comes next.
 
 ## Human approvals (never set by Claude)
 | Approval | How the human gives it | Required before |
@@ -43,6 +55,7 @@ work/<issue#>-<slug>/architecture.md   snapshot of the approved architecture not
 docs/adr/NNNN-<title>.md               long-lived decisions, mirrored from Notion
 .factory/config.md                     product config: stack, links, test folders, conventions
 .factory/gates.sh                      gate commands (protected)
+.factory/board.env                     which GitHub Project is the board (committed; optional)
 .factory/tmp/<issue#>/                 scratch: diffs, gate output, agent reports (git-ignored)
 .worktrees/<issue#>-tests|code/        agent worktrees (git-ignored)
 ```
