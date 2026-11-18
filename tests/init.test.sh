@@ -26,6 +26,7 @@ for stack in node python; do
   check "$stack: gates.sh is the $stack preset" "grep -q '$([ "$stack" = node ] && echo npx || echo 'uv run')' '$repo/.factory/gates.sh'"
   check "$stack: keeps existing .gitignore"  "grep -qx 'node_modules/' '$repo/.gitignore'"
   check "$stack: ignores scratch space"      "grep -qx '.factory/tmp/' '$repo/.gitignore' && grep -qx '.worktrees/' '$repo/.gitignore'"
+  check "$stack: keeps scripts LF on Windows"  "grep -qx '\*.sh text eol=lf' '$repo/.gitattributes'"
   check "$stack: gates.sh rejects unknown gate" "! '$repo/.factory/gates.sh' bogus >/dev/null 2>&1"
 
   # Running again must not overwrite anything or duplicate .gitignore lines.
@@ -33,6 +34,7 @@ for stack in node python; do
   (cd "$repo" && bash "$init" "$stack" >/dev/null 2>&1)
   check "$stack: rerun keeps edits"          "grep -qx '# edited' '$repo/.factory/config.md'"
   check "$stack: rerun no duplicate ignores" "[ \"\$(grep -cx '.worktrees/' '$repo/.gitignore')\" = 1 ]"
+  check "$stack: rerun no duplicate attributes" "[ \"\$(grep -cxF '*.sh text eol=lf' '$repo/.gitattributes')\" = 1 ]"
 done
 
 check "rejects a missing stack" "! (cd '$tmp/node' && bash '$init' >/dev/null 2>&1)"
