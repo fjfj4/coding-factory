@@ -34,6 +34,7 @@ for d in work docs/adr tests/acceptance; do [ -n "$(ls -A "$d")" ] || { touch "$
 
 touch .gitignore
 while IFS= read -r line; do
+  line="${line%$'\r'}"  # tolerate CRLF files
   [ -z "$line" ] && continue
   grep -qxF -- "$line" .gitignore || { echo "$line" >> .gitignore; echo "added to .gitignore: $line"; }
 done < "$tpl/.factory/gitignore.snippet"
@@ -41,6 +42,7 @@ done < "$tpl/.factory/gitignore.snippet"
 # Keep shell scripts LF on Windows checkouts.
 touch .gitattributes
 while IFS= read -r line; do
+  line="${line%$'\r'}"  # tolerate CRLF files
   [ -z "$line" ] && continue
   grep -qxF -- "$line" .gitattributes || { echo "$line" >> .gitattributes; echo "added to .gitattributes: $line"; }
 done < "$tpl/.factory/gitattributes.snippet"

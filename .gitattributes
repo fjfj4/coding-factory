@@ -1,3 +1,5 @@
 # Shell scripts must keep LF line endings, also on Windows checkouts (core.autocrlf),
 # or bash fails with "$'\r': command not found".
 *.sh text eol=lf
+# Templates that scripts read line by line must stay LF too.
+*.snippet text eol=lf
