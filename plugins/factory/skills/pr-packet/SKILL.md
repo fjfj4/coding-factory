@@ -1,6 +1,6 @@
 ---
 name: pr-packet
-description: How to fill in the factory PR template so a human can approve a change at a glance, including a Mermaid diagram generated from the actual diff. Use when opening or updating a PR in /factory:build or /factory:fix.
+description: How to fill in the factory PR template so a human can approve a change at a glance, including a Mermaid diagram generated from the actual diff. Use whenever the factory opens or updates a PR.
 ---
 
 # The PR packet

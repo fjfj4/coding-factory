@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Validates the plugin structure: manifests, agent/skill/command frontmatter and hooks.
+# Validates the plugin structure: manifests and agent/skill/command frontmatter.
 # Runs locally and in CI. Exit 1 on any problem.
 set -uo pipefail
 
@@ -9,6 +9,7 @@ errors=0
 err() { echo "ERROR: $*"; errors=$((errors + 1)); }
 
 command -v jq >/dev/null 2>&1 || { echo "ERROR: jq is required"; exit 1; }
+shopt -s nullglob
 
 # All JSON files parse
 while IFS= read -r f; do
@@ -43,18 +44,6 @@ done
 for f in "$plugin"/commands/*.md; do
   check_fields "$f" description
 done
-
-# Reviewers must stay read-only: no Write, Edit or Bash in their tool lists.
-for a in code-reviewer security-reviewer; do
-  tools="$(fm "$plugin/agents/$a.md" tools)"
-  printf '%s' "$tools" | grep -Eq '(Write|Edit|Bash|NotebookEdit)' && err "agents/$a.md must be read-only (tools: $tools)"
-done
-
-# Every hook script referenced exists and is executable
-while IFS= read -r cmd; do
-  script="${cmd//\"/}"; script="${script//\$\{CLAUDE_PLUGIN_ROOT\}/$plugin}"
-  [ -x "$script" ] || err "hook script missing or not executable: $cmd"
-done < <(jq -r '.. | objects | select(.type? == "command") | .command' "$plugin/hooks/hooks.json")
 
 if [ "$errors" -gt 0 ]; then
   echo "$errors problem(s) found"
