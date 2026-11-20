@@ -17,7 +17,7 @@ for stack in node python; do
   printf 'node_modules/\n' > "$repo/.gitignore"
   (cd "$repo" && bash "$init" "$stack" >/dev/null 2>&1)
   check "$stack: creates the config"        "[ -f '$repo/.factory/config.md' ]"
-  for f in .factory/gates.sh .factory/check-pr-body.sh .github/workflows/factory-gates.yml \
+  for f in .factory/gates.sh .factory/check-pr-body.sh .github/workflows/factory-gates.yml .github/workflows/factory-orchestrator.yml \
            .github/pull_request_template.md .github/ISSUE_TEMPLATE/work-item.yml \
            .github/dependabot.yml .github/CODEOWNERS work/.gitkeep docs/adr/.gitkeep tests/acceptance/.gitkeep; do
     check "$stack: creates $f" "[ -e '$repo/$f' ]"

@@ -1,0 +1,60 @@
+name: factory-orchestrator
+
+# Starts the factory: when the owner labels an issue factory:ready, a read-only
+# Haiku run decides if it is ready, unclear or too big, and labels it.
+# Changes to this file never auto-merge.
+# Needs: secrets FACTORY_APP_PRIVATE_KEY and CLAUDE_CODE_OAUTH_TOKEN,
+#        variables FACTORY_APP_CLIENT_ID and FACTORY_BOT_LOGIN,
+#        optional variable FACTORY_DRY_RUN=false to let it act.
+on:
+  issues:
+    types: [labeled]
+  schedule:
+    - cron: "17 * * * *" # hourly: picks up a factory:ready issue whose label event was missed
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: Issue number
+        required: true
+        type: number
+
+permissions:
+  contents: read
+  issues: read
+
+concurrency:
+  group: factory-orchestrator-${{ github.event.issue.number || inputs.issue || 'schedule' }}
+  cancel-in-progress: false
+
+jobs:
+  orchestrate:
+    # A label event counts only if the owner or the factory App added factory:ready.
+    if: >-
+      github.event_name != 'issues' ||
+      (github.event.label.name == 'factory:ready' &&
+       (github.event.sender.login == github.repository_owner || github.event.sender.login == vars.FACTORY_BOT_LOGIN))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Pick the issue
+        id: pick
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_ISSUE: ${{ github.event.issue.number || inputs.issue }}
+        run: |
+          set -euo pipefail
+          if [ -n "$EVENT_ISSUE" ]; then echo "issue=$EVENT_ISSUE" >> "$GITHUB_OUTPUT"; exit 0; fi
+          # Scheduled run: the oldest open factory:ready issue, if any.
+          n="$(gh issue list --repo "$GITHUB_REPOSITORY" --label factory:ready --state open --json number --jq 'sort_by(.number) | .[0].number // empty')"
+          echo "issue=$n" >> "$GITHUB_OUTPUT"
+
+      - name: Orchestrate
+        if: steps.pick.outputs.issue != ''
+        uses: fjfj4/coding-factory/actions/orchestrator@main # pin to a release SHA once v2 is tagged
+        with:
+          issue: ${{ steps.pick.outputs.issue }}
+          client-id: ${{ vars.FACTORY_APP_CLIENT_ID }}
+          private-key: ${{ secrets.FACTORY_APP_PRIVATE_KEY }}
+          claude-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          bot-login: ${{ vars.FACTORY_BOT_LOGIN }}
+          dry-run: ${{ vars.FACTORY_DRY_RUN || 'true' }}

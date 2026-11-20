@@ -24,6 +24,7 @@ copy "$tpl/.factory/config.md"                      .factory/config.md
 copy "$tpl/.factory/gates.$stack.sh"                .factory/gates.sh 755
 copy "$tpl/.factory/check-pr-body.sh"               .factory/check-pr-body.sh 755
 copy "$tpl/.github/workflows/factory-gates.yml"     .github/workflows/factory-gates.yml
+copy "$tpl/.github/workflows/factory-orchestrator.yml" .github/workflows/factory-orchestrator.yml
 copy "$tpl/.github/pull_request_template.md"        .github/pull_request_template.md
 copy "$tpl/.github/ISSUE_TEMPLATE/work-item.yml"    .github/ISSUE_TEMPLATE/work-item.yml
 copy "$tpl/.github/dependabot.yml"                  .github/dependabot.yml
@@ -53,3 +54,4 @@ echo "  1. Fill in .factory/config.md and adjust the commands in .factory/gates.
 echo "  2. Replace @OWNER in .github/CODEOWNERS with your GitHub username."
 echo "  3. Create the labels:   bash \"$here/setup-labels.sh\""
 echo "  4. Protect main: require a PR, the factory-gates checks and code-owner review."
+echo "  5. Set up the factory GitHub App and secrets: https://github.com/fjfj4/coding-factory/blob/main/docs/setup-factory-app.md"
