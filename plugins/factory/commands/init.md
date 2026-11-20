@@ -3,18 +3,17 @@ description: Set up the current product repo for the coding factory (config, gat
 argument-hint: "[node|python]"
 ---
 
-Set up this repository for the coding factory. Use the `factory-workflow` skill for context.
+Set up this repository for the coding factory.
 
 1. Work out the stack: use `$ARGUMENTS` if it is `node` or `python`; otherwise look for `package.json` or `pyproject.toml`, and ask the human if it's unclear or neither.
 2. Show the human what will be created, then run:
    `bash "${CLAUDE_PLUGIN_ROOT}/scripts/init-product.sh" <stack>`
    The script never overwrites existing files. Report any it left alone.
-3. Help the human fill in `.factory/config.md`: product, stack, Notion links for specs and ADRs, test folders and framework. Read the codebase to propose values; ask for the Notion links.
-4. Compare `.factory/gates.sh` with the project's real scripts (`package.json` scripts, `pyproject.toml` tools) and tell the human exactly which lines to change. The guard hooks stop you from editing it yourself, by design.
+3. Help the human fill in `.factory/config.md`: product, stack, test folders and framework. Read the codebase to propose values.
+4. Compare `.factory/gates.sh` with the project's real scripts (`package.json` scripts, `pyproject.toml` tools) and tell the human exactly which lines to change.
 5. Ask the human to replace `@OWNER` in `.github/CODEOWNERS` and to create the labels by running:
    `! bash "${CLAUDE_PLUGIN_ROOT}/scripts/setup-labels.sh"`
-6. Recommend branch protection for `main`: require a pull request, the `factory-gates` checks, and code-owner review. Give the link `https://github.com/<owner>/<repo>/settings/branches`.
-7. Offer to create the kanban board, a GitHub Project with a column per stage and an Owner field. The human must first give `gh` the project scope: `! gh auth refresh -s project`. Then run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/board.sh" setup`, relay its four manual steps for the views, and commit `.factory/board.env`. Without a Project, `/factory:status` still shows the board in the terminal.
-8. Check that `gh auth status` works and that the Notion tools are available. If Notion isn't connected, say that specs will fall back to `work/<issue#>-<slug>/spec.md`.
+6. Recommend branch protection for `main`: require a pull request and the `factory-gates` checks. Give the link `https://github.com/<owner>/<repo>/settings/branches`.
+7. Check that `gh auth status` works.
 
 Finish with a short checklist of what's done and what the human still has to do.
