@@ -38,6 +38,13 @@ while IFS= read -r line; do
   grep -qxF -- "$line" .gitignore || { echo "$line" >> .gitignore; echo "added to .gitignore: $line"; }
 done < "$tpl/.factory/gitignore.snippet"
 
+# Keep shell scripts LF on Windows checkouts.
+touch .gitattributes
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  grep -qxF -- "$line" .gitattributes || { echo "$line" >> .gitattributes; echo "added to .gitattributes: $line"; }
+done < "$tpl/.factory/gitattributes.snippet"
+
 echo
 echo "Next steps:"
 echo "  1. Fill in .factory/config.md and adjust the commands in .factory/gates.sh."

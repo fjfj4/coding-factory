@@ -39,6 +39,17 @@ Prerequisites on your machine: Claude Code, the GitHub CLI (`gh auth login`), `j
 claude mcp add --transport http notion https://mcp.notion.com/mcp
 ```
 
+**On Windows,** the factory's scripts run in Git Bash, which comes with Git for Windows (Claude Code needs it too). Install the tools from PowerShell:
+
+```
+winget install --id Git.Git -e
+winget install --id GitHub.cli -e
+winget install --id jqlang.jq -e
+gh auth login
+```
+
+Run the factory's `bash ...` commands in Git Bash, or let Claude Code run them for you through the `/factory` commands. `.gitattributes` keeps the scripts' line endings correct on Windows.
+
 Then, inside Claude Code:
 
 ```
