@@ -12,7 +12,7 @@ flowchart TD
   orch -->|"split"| subs["Sub-issues, each factory:ready"] --> orch
   orch -->|"ready: stage:plan"| plan
 
-  plan["<b>Planner</b><br/>Model: Sonnet<br/>Plugin: feature-dev<br/>Agents: code-explorer, code-architect<br/>Output: plan comment with Mermaid"]
+  plan["<b>Planner</b><br/>Model: Opus, also for its subagents<br/>Plugin: feature-dev<br/>Agents: code-explorer, code-architect<br/>Output: plan comment with Mermaid"]
   plan --> tw & coder
 
   subgraph par["In parallel, on separate branches"]
@@ -49,7 +49,7 @@ flowchart TD
 | Stage | Model | Plugins, skills, hooks | Can write? | Status |
 |---|---|---|---|---|
 | Orchestrator | Haiku | Our own prompt | No (labels set by a script) | Built |
-| Planner | Sonnet | `feature-dev`: `code-explorer`, `code-architect` | Comments only | Planned |
+| Planner | Opus |  `feature-dev`: `code-explorer`, `code-architect` | Comments only | Planned |
 | Test writer | Sonnet | Our own prompt | Tests only | Planned |
 | Coder | Sonnet | `frontend-design` (ui issues), `security-guidance` hooks | Yes | Planned |
 | Join, gates, merge | None | Plain CI | n/a | Gates reused from v1 |
@@ -59,4 +59,4 @@ flowchart TD
 | Fixer | Sonnet | Same as coder | Yes | Planned |
 | Deep security scan | Plugin default | `claude-security`, weekly | No | Planned |
 
-Only one stage uses Haiku and none uses Opus by default. Most steps use no model at all, which keeps runs cheap and predictable.
+Only one stage uses Haiku. Only the planner uses Opus every time; the security reviewer uses it when auth code changes. Most steps use no model at all, which keeps runs cheap and predictable.

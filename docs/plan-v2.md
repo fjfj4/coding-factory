@@ -18,7 +18,7 @@ flowchart TD
   orch -->|spec unclear| human1[/"Questions as a comment<br/>+ needs-human"/]
   orch -->|too big| split["Sub-issues, each labelled factory:ready"]
   orch -->|ok: label stage:plan| plan
-  plan["Plan<br/>Sonnet + feature-dev agents<br/>plan comment with Mermaid"]
+  plan["Plan<br/>Opus + feature-dev agents<br/>plan comment with Mermaid"]
   plan --> tests & code
   subgraph parallel[In parallel, separate branches]
     tests["Test writer<br/>Sonnet<br/>acceptance tests only"]
@@ -59,7 +59,7 @@ Labels hold the state (`stage:plan`, `stage:build`, `stage:review`, `fix-round:1
 |---|---|---|---|
 | Runner | `anthropics/claude-code-action` (pinned SHA), `plugins:` input from `claude-plugins-official` | Official, actively maintained (Claude Code 2.1.329 bumped yesterday), supports your OAuth token and structured JSON output | n/a |
 | Orchestrator | Our own prompt, ~250 words, Haiku | Nothing maintained fits. It only reads and labels. | small |
-| Plan | `feature-dev` plugin, **only its `code-explorer` and `code-architect` agents** | Both are Sonnet and short. I skip the `/feature-dev` command itself: it is interactive and stops to ask you questions, which breaks headless runs. | 568 words |
+| Plan | `feature-dev` plugin, **only its `code-explorer` and `code-architect` agents** | Both are short. They default to Sonnet; we run them on Opus (see answer 6).  I skip the `/feature-dev` command itself: it is interactive and stops to ask you questions, which breaks headless runs. | 568 words |
 | Test writer | Our own prompt, ~250 words | No maintained "write tests from acceptance criteria" agent exists. | small |
 | Coder | Built-in Claude Code + `frontend-design` skill on UI issues only + `security-guidance` hooks | The hooks warn on dangerous patterns as code is written and review the diff before the run ends, so many security bugs are fixed before review. | skill 1,505 words, loaded only for `ui` issues |
 | Gates | v1's `factory-gates.yml` (Semgrep, gitleaks, Trivy, SHA-pinned) + new e2e and "acceptance tests untouched" checks | Deterministic, free, already tested in v1 | n/a |
@@ -96,7 +96,7 @@ Labels hold the state (`stage:plan`, `stage:build`, `stage:review`, `fix-round:1
 | Stage | Model | Input tokens | Output tokens |
 |---|---|---|---|
 | Orchestrator | Haiku | 20k | 1k |
-| Plan | Sonnet | 150k | 8k |
+| Plan | **Opus** | 150k | 8k |
 | Test writer | Sonnet | 100k | 6k |
 | Coder (+ security hooks) | Sonnet | 450k | 25k |
 | Code review | Sonnet | 80k | 3k |
@@ -125,3 +125,4 @@ Most input is cached re-reads of the same files, which cost far less than fresh 
 3. **Public or private:** public is fine for the demo and hobby apps. Products that might be sold should be private on a paid GitHub plan. Agents only read comments from the owner and the factory.
 4. **Never-auto-merge additions:** accepted.
 5. **Claude plan:** the account is on Pro. Prove the factory on Pro, then choose Max or a separate API key for real use.
+6. **Planner on Opus** (added 2026-11-20 at Jacob's request): the plan stage, including `feature-dev`'s `code-explorer` and `code-architect`, runs on Opus. Those two agents set `model: sonnet` in their own files, so the stage must override the subagent model too (for example with the `CLAUDE_CODE_SUBAGENT_MODEL` setting), or only the coordinating run would be Opus. The first live run must confirm the override works. Opus uses up the plan's limits faster than Sonnet, so on Pro expect fewer features per five-hour window.
