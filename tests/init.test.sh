@@ -42,6 +42,16 @@ check "rejects an unknown stack" "! (cd '$tmp/node' && bash '$init' ruby >/dev/n
 mkdir -p "$tmp/not-a-repo"
 check "refuses outside a git repo" "! (cd '$tmp/not-a-repo' && GIT_CEILING_DIRECTORIES='$tmp' bash '$init' node >/dev/null 2>&1)"
 
+
+# Windows checkouts can give the snippet templates CRLF endings; reruns must still not duplicate lines.
+crlf="$tmp/crlf-plugin"
+cp -R "$root/plugins/factory" "$crlf"
+for s in "$crlf"/templates/product/.factory/*.snippet; do sed -i 's/$/\r/' "$s"; done
+repo="$tmp/crlf" && mkdir -p "$repo" && git -C "$repo" init -q
+(cd "$repo" && bash "$crlf/scripts/init-product.sh" node >/dev/null 2>&1 && bash "$crlf/scripts/init-product.sh" node >/dev/null 2>&1)
+check "crlf snippets: no duplicate ignores"    "[ \"\$(grep -cx '.worktrees/' '$repo/.gitignore')\" = 1 ]"
+check "crlf snippets: no carriage returns"     "! grep -q \$'\r' '$repo/.gitignore' '$repo/.gitattributes'"
+
 # The PR template must pass its own check once filled in, and fail while empty.
 check "empty PR template fails the check" "! '$root/scripts/check-pr-body.sh' '$root/plugins/factory/templates/product/.github/pull_request_template.md' >/dev/null 2>&1"
 
