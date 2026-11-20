@@ -5,13 +5,13 @@
     "url": "https://github.com/fjfj4"
   },
   "metadata": {
-    "description": "A minimal, security-first agent team for building software with Claude Code."
+    "description": "An autonomous, security-first coding factory for Claude Code and GitHub Actions."
   },
   "plugins": [
     {
       "name": "factory",
       "source": "./plugins/factory",
-      "description": "Test engineer, coder, code reviewer and security reviewer agents, with guard hooks and a GitHub Issues workflow."
+      "description": "Sets up product repos for the autonomous coding factory: gates, CI, PR template and labels. v2 is under construction."
     }
   ]
 }

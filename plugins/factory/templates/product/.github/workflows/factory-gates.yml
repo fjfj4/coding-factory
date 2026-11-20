@@ -1,6 +1,6 @@
 name: factory-gates
 
-# Deterministic gates for a product repo. Agents cannot edit this file (guard hooks);
+# Deterministic gates for a product repo. Changes to this file never auto-merge;
 # make it required in branch protection for main.
 on:
   pull_request:

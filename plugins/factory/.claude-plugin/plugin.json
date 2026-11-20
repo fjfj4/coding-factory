@@ -1,7 +1,7 @@
 {
   "name": "factory",
-  "version": "0.1.0",
-  "description": "Minimal coding factory: test engineer and coder working in parallel, read-only code and security reviewers, guard hooks and CI gates. Tasks in GitHub Issues, specs in Notion; you approve specs, architecture and merges.",
+  "version": "0.2.0",
+  "description": "Sets up product repos for the autonomous coding factory: deterministic gates, CI, PR template and labels. v2 moves the agents into GitHub Actions; see docs/plan-v2.md.",
   "author": {
     "name": "fjfj4",
     "url": "https://github.com/fjfj4"
