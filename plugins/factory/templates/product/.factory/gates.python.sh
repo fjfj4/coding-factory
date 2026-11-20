@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Factory gates for a Python project (uv + ruff + mypy + pytest). Copied to .factory/gates.sh by /factory:init.
-# Agents may run this file but not change it (guard hooks). Edit the commands to fit your project.
+# Agents may run this file. Changes to it never auto-merge. Edit the commands to fit your project.
 # Usage: ./.factory/gates.sh <all|ci|lint|typecheck|test|acceptance|build|security>
 set -euo pipefail
 cd "$(dirname "$0")/.."
