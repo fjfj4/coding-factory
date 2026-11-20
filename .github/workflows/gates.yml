@@ -25,7 +25,7 @@ jobs:
       - name: Validate plugin structure
         run: scripts/validate.sh
       - name: Lint shell scripts
-        run: shellcheck scripts/*.sh tests/*.sh plugins/factory/scripts/*.sh plugins/factory/templates/product/.factory/*.sh
+        run: shellcheck scripts/*.sh tests/*.sh actions/*/*.sh plugins/factory/scripts/*.sh plugins/factory/templates/product/.factory/*.sh
       - name: Run tests
         run: tests/run.sh
 

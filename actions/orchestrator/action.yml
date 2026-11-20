@@ -1,0 +1,105 @@
+name: Factory orchestrator
+description: Reads one factory:ready issue, asks a read-only Haiku run whether it is ready, unclear or too big, and routes it with labels.
+
+inputs:
+  issue:
+    description: Issue number to check.
+    required: true
+  client-id:
+    description: Client ID of the factory GitHub App.
+    required: true
+  private-key:
+    description: Private key of the factory GitHub App.
+    required: true
+  claude-oauth-token:
+    description: CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`.
+    required: true
+  bot-login:
+    description: Login of the factory App's bot, e.g. my-factory[bot]. Its comments are trusted and it may start runs.
+    required: false
+    default: ""
+  dry-run:
+    description: '"false" lets the factory change labels and create issues. Anything else only comments what it would do.'
+    required: false
+    default: "true"
+
+outputs:
+  decision:
+    description: ready, unclear, split, invalid or skipped.
+    value: ${{ steps.route.outputs.decision || steps.issue.outputs.skip }}
+
+runs:
+  using: composite
+  steps:
+    - name: Mint a one-hour App token
+      id: app
+      uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc # v3.4.0
+      with:
+        client-id: ${{ inputs.client-id }}
+        private-key: ${{ inputs.private-key }}
+        permission-contents: read
+        permission-issues: write
+
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+
+    - name: Fetch the issue (owner-written only)
+      id: issue
+      shell: bash
+      env:
+        GH_TOKEN: ${{ steps.app.outputs.token }}
+        ISSUE: ${{ inputs.issue }}
+        REPO: ${{ github.repository }}
+        OWNER: ${{ github.repository_owner }}
+        BOT: ${{ inputs.bot-login }}
+      run: |
+        set -euo pipefail
+        mkdir -p .factory-run
+        gh issue view "$ISSUE" --repo "$REPO" --json number,title,body,author,labels,comments > .factory-run/raw.json
+        author="$(jq -r .author.login .factory-run/raw.json)"
+        if [ "$author" != "$OWNER" ] && [ "$author" != "$BOT" ]; then
+          echo "::notice::Issue #$ISSUE was written by $author, not the repository owner. The factory only builds issues the owner wrote."
+          echo "skip=skipped" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        # Keep only comments from the owner and the factory, so others cannot steer the agent.
+        jq --arg o "$OWNER" --arg b "$BOT" \
+          '{number, title, body, labels: [.labels[].name], comments: [.comments[] | select(.author.login == $o or .author.login == $b) | {author: .author.login, body}]}' \
+          .factory-run/raw.json > .factory-run/issue.json
+        rm .factory-run/raw.json
+        {
+          echo "prompt<<FACTORY_EOF"
+          cat "$GITHUB_ACTION_PATH/prompt.md"
+          echo "FACTORY_EOF"
+          echo "schema=$(jq -c . "$GITHUB_ACTION_PATH/schema.json")"
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Ask the orchestrator (Haiku, read-only)
+      id: claude
+      if: steps.issue.outputs.skip == ''
+      uses: anthropics/claude-code-action@c84e279f859e2591391e95bd309286eb111c345f # v1.0.284
+      with:
+        claude_code_oauth_token: ${{ inputs.claude-oauth-token }}
+        github_token: ${{ steps.app.outputs.token }}
+        allowed_bots: ${{ inputs.bot-login }}
+        prompt: ${{ steps.issue.outputs.prompt }}
+        claude_args: >-
+          --model haiku
+          --max-turns 8
+          --allowedTools Read,Glob,Grep
+          --json-schema '${{ steps.issue.outputs.schema }}'
+
+    - name: Route the issue
+      id: route
+      if: steps.issue.outputs.skip == ''
+      shell: bash
+      env:
+        GH_TOKEN: ${{ steps.app.outputs.token }}
+        VERDICT: ${{ steps.claude.outputs.structured_output }}
+        ISSUE: ${{ inputs.issue }}
+        REPO: ${{ github.repository }}
+        DRY_RUN: ${{ inputs.dry-run }}
+      run: |
+        set -euo pipefail
+        "$GITHUB_ACTION_PATH/route.sh" | tee -a "$GITHUB_OUTPUT"
