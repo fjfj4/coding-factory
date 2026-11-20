@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2016 # backticks and $ in single quotes are literal Markdown and jq, by design
 # Applies the orchestrator's verdict to an issue with labels and comments.
 # The agent decides; this script is the only thing that changes GitHub.
 # Env: VERDICT (JSON from the agent), ISSUE (number), REPO (owner/name),

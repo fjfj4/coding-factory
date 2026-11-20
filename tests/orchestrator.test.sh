@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2016 # backticks and $ in single quotes are literal Markdown and jq, by design
 # Tests for actions/orchestrator/route.sh, with a fake gh that records its calls.
 set -uo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"

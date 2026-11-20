@@ -50,7 +50,8 @@ jobs:
 
       - name: Orchestrate
         if: steps.pick.outputs.issue != ''
-        uses: fjfj4/coding-factory/actions/orchestrator@main # pin to a release SHA once v2 is tagged
+        # Unpinned only until v2 has a release to pin to (tracked in #12).
+        uses: fjfj4/coding-factory/actions/orchestrator@main # nosemgrep: yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag
         with:
           issue: ${{ steps.pick.outputs.issue }}
           client-id: ${{ vars.FACTORY_APP_CLIENT_ID }}
